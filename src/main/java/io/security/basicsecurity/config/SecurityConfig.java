@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -20,6 +21,12 @@ import java.io.IOException;
 @Configuration
 @EnableWebSecurity // 이걸 넣어야 웹 보완이 활성화 된다.
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    private UserDetailsService userDetailsService;
+
+    public SecurityConfig(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -51,6 +58,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .deleteCookies("JSESSIONID", "remember-me") 	// 로그아웃 후 쿠키 삭제
                 .addLogoutHandler(logoutHandler())		 // 로그아웃 핸들러
                 .logoutSuccessHandler(logoutSuccessHandler()) 	// 로그아웃 성공 후 핸들러
+        ;
+
+        //remember
+        http.rememberMe()
+                .rememberMeParameter("remember") // 기본 파라미터명은 remember-me
+                .tokenValiditySeconds(3600) // Default 는 14일
+                .alwaysRemember(true) // 리멤버 미 기능이 활성화되지 않아도 항상 실행
+                .userDetailsService(userDetailsService)
         ;
     }
 
