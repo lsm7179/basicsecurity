@@ -67,6 +67,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .alwaysRemember(true) // 리멤버 미 기능이 활성화되지 않아도 항상 실행
                 .userDetailsService(userDetailsService)
         ;
+
+        http.sessionManagement()
+                .maximumSessions(1)
+                //.maxSessionsPreventsLogin(true) //현재 인증을 시도하는 것을 로그인을 못하게하는 전략
+                .maxSessionsPreventsLogin(false)
+        ;
     }
 
     private LogoutSuccessHandler logoutSuccessHandler() {
