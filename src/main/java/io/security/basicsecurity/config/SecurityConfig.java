@@ -73,6 +73,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 //.maxSessionsPreventsLogin(true) //현재 인증을 시도하는 것을 로그인을 못하게하는 전략
                 .maxSessionsPreventsLogin(false)
         ;
+
+        http.sessionManagement() // 세션 고정 보호
+                .sessionFixation()
+                //.none()
+                //.newSession()
+                //.migrateSession()
+                .changeSessionId() // 기본값
+        ;
     }
 
     private LogoutSuccessHandler logoutSuccessHandler() {
