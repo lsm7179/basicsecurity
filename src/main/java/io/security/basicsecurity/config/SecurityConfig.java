@@ -102,7 +102,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //패스워드 암호화 유형을 prefix에 적어줘야한다.(noop은 평문을 의미한다.)
         auth.inMemoryAuthentication().withUser("user").password("{noop}1111").roles("USER");
         auth.inMemoryAuthentication().withUser("sys").password("{noop}1111").roles("SYS");
-        auth.inMemoryAuthentication().withUser("admin").password("{noop}1111").roles("ADMIN");
+        auth.inMemoryAuthentication().withUser("admin").password("{noop}1111").roles("ADMIN", "SYS","USER");
     }
 
     @Override
