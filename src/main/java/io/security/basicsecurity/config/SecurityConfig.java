@@ -1,6 +1,7 @@
 package io.security.basicsecurity.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -27,7 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         this.userDetailsService = userDetailsService;
     }
 
-    @Override
+    /*@Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
@@ -42,22 +43,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordParameter("passwd")
                 .loginProcessingUrl("/login_proc")
                 .successHandler((httpServletRequest, httpServletResponse, authentication) -> {
-                    System.out.printf("authentication"+ authentication.getName());
+                    System.out.printf("authentication" + authentication.getName());
                     httpServletResponse.sendRedirect("/");
                 })
                 .failureHandler((httpServletRequest, httpServletResponse, e) -> {
-                    System.out.println("exception"+ e.getMessage());
+                    System.out.println("exception" + e.getMessage());
                     httpServletResponse.sendRedirect("/login");
                 })
                 .permitAll();
 
         //logout
-        http.logout()						        // 로그아웃 처리
-                .logoutUrl("/logout")				// 로그아웃 처리 URL
-	            .logoutSuccessUrl("/login")			// 로그아웃 성공 후 이동페이지
-                .deleteCookies("JSESSIONID", "remember-me") 	// 로그아웃 후 쿠키 삭제
-                .addLogoutHandler(logoutHandler())		 // 로그아웃 핸들러
-                .logoutSuccessHandler(logoutSuccessHandler()) 	// 로그아웃 성공 후 핸들러
+        http.logout()                                // 로그아웃 처리
+                .logoutUrl("/logout")                // 로그아웃 처리 URL
+                .logoutSuccessUrl("/login")            // 로그아웃 성공 후 이동페이지
+                .deleteCookies("JSESSIONID", "remember-me")    // 로그아웃 후 쿠키 삭제
+                .addLogoutHandler(logoutHandler())         // 로그아웃 핸들러
+                .logoutSuccessHandler(logoutSuccessHandler())    // 로그아웃 성공 후 핸들러
         ;
 
         //remember
@@ -81,7 +82,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 //.migrateSession()
                 .changeSessionId() // 기본값
         ;
-    }
+    }*/
 
     private LogoutSuccessHandler logoutSuccessHandler() {
         return (httpServletRequest, httpServletResponse, authentication) -> {
@@ -94,5 +95,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             HttpSession session = httpServletRequest.getSession();
             session.invalidate();
         };
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        //패스워드 암호화 유형을 prefix에 적어줘야한다.(noop은 평문을 의미한다.)
+        auth.inMemoryAuthentication().withUser("user").password("{noop}1111").roles("USER");
+        auth.inMemoryAuthentication().withUser("sys").password("{noop}1111").roles("SYS");
+        auth.inMemoryAuthentication().withUser("admin").password("{noop}1111").roles("ADMIN");
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .authorizeRequests()
+                .antMatchers("/user").hasRole("USER")
+                .antMatchers("/admin/pay").hasRole("ADMIN")
+                .antMatchers("/admin/**").access("hasRole('ADMIN') or hasRole('SYS')")
+                .anyRequest().authenticated();
+
+        http
+                .formLogin();
     }
 }
