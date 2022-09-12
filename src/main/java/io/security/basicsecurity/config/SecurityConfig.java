@@ -141,5 +141,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     httpServletResponse.sendRedirect("/denied");
                 })
                 ;
+
+        http
+                .csrf() //기본으로 되어 있음.
+                // .disable() // 비활성화
+                ;
     }
 }
